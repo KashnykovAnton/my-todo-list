@@ -1,6 +1,7 @@
 import './Filter.scss';
 
 const Filter = ({ value, onChangeFilter }) => {
+  console.log(value);
   return (
     <div className="Filter">
       <label className="Filter__label">
