@@ -1,5 +1,6 @@
 [
   { "id": "id-1", "text": "To buy milk", "completed": true },
   { "id": "id-2", "text": "To go to the cinema", "completed": false },
-  { "id": "id-3", "text": "To do homework", "completed": false }
+  { "id": "id-3", "text": "To do homework", "completed": false },
+  { "id": "id-4", "text": "Попробовать React Hooks", "completed": false }
 ]
