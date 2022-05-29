@@ -1,22 +1,48 @@
 import { Component } from 'react';
+import shortid from 'shortid';
 import Container from 'components/Container';
 import TodoList from 'components/TodoList';
 import TodoEditor from 'components/TodoEditor';
-import Filter from 'components/Filter';
-import initialTodos from './todos.json';
-import shortid from 'shortid';
+import TodoFilter from 'components/TodoFilter';
+import IconButton from 'components/IconButton';
+import Modal from 'components/Modal';
+import { ReactComponent as AddIcon } from './icons/add.svg';
+// import initialTodos from './todos.json';
 
 class App extends Component {
   state = {
-    todos: initialTodos,
+    // todos: initialTodos,
+    todos: [],
     filter: '',
+    showModal: false,
   };
+
+  componentDidMount() {
+    const todos = localStorage.getItem('todos');
+    const parsedTodos = JSON.parse(todos);
+    if (parsedTodos) {
+      this.setState({ todos: parsedTodos });
+    }
+  }
+
+  componentDidUpdate(prevProps, prevState, shapshot) {
+    const nextTodos = this.state.todos;
+    const prevTodos = prevState.todos;
+
+    if (nextTodos !== prevTodos) {
+      localStorage.setItem('todos', JSON.stringify(nextTodos));
+    }
+    // ----------This method is much less binding addTodo and toggleModal. It's more independent solution----------
+
+    // if (nextTodos.length > prevTodos.length && prevTodos.length !== 0) {
+    //   this.toggleModal();
+    // }
+  }
 
   addTodo = text => {
     const todo = { id: shortid.generate(), text: text, completed: false };
-
     this.setState(({ todos }) => ({ todos: [todo, ...todos] }));
-    console.log(this.state);
+    this.toggleModal();
   };
 
   toggleCompleted = todoId => {
@@ -32,6 +58,7 @@ class App extends Component {
     //   }),
     // }));
 
+    // This solution with conditional operator is shorter than the previous one
     this.setState(({ todos }) => ({
       todos: todos.map(todo =>
         todoId === todo.id ? { ...todo, completed: !todo.completed } : todo,
@@ -46,7 +73,6 @@ class App extends Component {
   };
 
   changeFilter = e => {
-    console.log(e.currentTarget.value);
     this.setState({ filter: e.currentTarget.value });
   };
 
@@ -66,6 +92,10 @@ class App extends Component {
   calcUnCompletedTodos = () => {
     const { todos } = this.state;
     return todos.filter(todo => !todo.completed).length;
+  };
+
+  toggleModal = () => {
+    this.setState(prevState => ({ showModal: !prevState.showModal }));
   };
 
   render() {
@@ -93,8 +123,24 @@ class App extends Component {
           <p>Done todos: {completedTodos}</p>
           <p>Not done todos: {unCompletedTodos}</p>
         </div>
-        <TodoEditor onSubmit={addTodo} />
-        <Filter value={filter} onChangeFilter={changeFilter} />
+
+        {this.state.showModal && (
+          <Modal onClose={this.toggleModal}>
+            <TodoEditor onSubmit={addTodo} />
+          </Modal>
+        )}
+
+        <IconButton
+          type="button"
+          onClick={() => {
+            this.toggleModal();
+          }}
+          aria-label="Add todo"
+        >
+          <AddIcon width="40px" height="40px" fill="#fff" />
+        </IconButton>
+
+        <TodoFilter value={filter} onChangeFilter={changeFilter} />
         <TodoList
           todos={visibleTodos}
           onDeleteTodo={deleteTodo}
